@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	S "strings"
+	// S "strings"
 	"encoding/json"
 
 	// wasihttp does not like the new Go ServeMux, but it does work 
@@ -21,17 +21,10 @@ import (
 	// things are working right, the compiler does locate gen:
 	// store "github.com/fbaube/wc_go_http-keyvalue-crud_gen_store" 
 
-	// cm provides types and functions for interacting
-	// with the WebAssembly Component Model.
 	"go.bytecodealliance.org/cm"
-
-	// wasihttp lets us write more-idiomatic Go when using wasi:http.
 	"go.wasmcloud.dev/component/net/wasihttp"
-
-	// wasilog lets us log in slog style 
 	"go.wasmcloud.dev/component/log/wasilog"
-	"log/slog"
-	
+	"log/slog"	
 )
 
 // Types for JSON validation.
@@ -52,6 +45,7 @@ var logger *slog.Logger
 func init() {
         logger = wasilog.ContextLogger("DERF")
 	logger.Info("Logging is initialized")
+	logger.Info("Logging", "Name", "fubar", "Number", 42)
 	router = httprouter.New()
 	router.GET   ("/", 	    hINDEX)
 	router.GET   ("/crud/:key", hGET)
@@ -63,12 +57,12 @@ func init() {
 func hINDEX(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	fmt.Fprintln(w,
      `{"message":"GET,POST,DELETE to /crud/<key> (w JSON payload for POSTs)"}`)
-     /*
-     var routerDump string
-     routerDump = fmt.Sprintf("Router: %#v", *router)
-     routerDump = S.ReplaceAll(routerDump, ", ", ", \n")
-     fmt.Fprintf(w, routerDump)
-     */
+
+     fmt.Fprintf(w,
+     "\nTry these: \n\n" +
+     "curl -X POST localhost:8000/crud/mario -d '{\"itsa\": \"me\", \"woo\": \"hoo\"}' \n" +
+     "curl localhost:8000/crud/mario \n" +
+     "curl -X DELETE localhost:8000/crud/mario")
 }
 
 func hPOST(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {

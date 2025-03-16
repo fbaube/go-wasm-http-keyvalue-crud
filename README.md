@@ -1,4 +1,4 @@
-# KV works; RDBMS RSN 
+# KV works; RDBMS "RSN" 
 
 This repo makes fixes to WasmCloud's
 [example](https://github.com/wasmCloud/go/tree/main/examples/component/http-keyvalue-crud)
@@ -18,14 +18,15 @@ Note the comment down below: <br/>
 its included NATS key-value store to back key-value operations, but the
 app could use another store like Redis with no change to the Go code.*
 
-WasmCloud's original version is several directory levels down,
-but ths repo works fine in isolation, cloned from git to any
-location. (This is not true for some other demos they have.) 
+WasmCloud's original version is several directory levels down, but
+this repo works fine in isolation, cloned from git to any location.
+(This is not true for some other demos that WasmCloud has.) 
 
-The router has to be passed to `wasi-http`, which chokes on the
-new Go `ServeMux`, so we use a third-party router instead.
+The router has to be passed to `wasi-http`, which chokes on the new Go
+`ServeMux`, so instead we use a third-party router that works okay.
 
-To exercise this example when running `wash dev`:
+To exercise this example when running `wash dev`
+(or `wash up -d` plus `wash app deploy wadm.yaml`):
 ```
 wash app list
 curl -X POST localhost:8000/crud/mario -d '{"itsa": "me", "woo": "hoo"}'
@@ -33,20 +34,21 @@ curl localhost:8000/crud/mario
 curl -X DELETE localhost:8000/crud/mario
 ```
 
-# Problems at runtime
+## Signs of runtime problems 
 
-If NATS is not running in the background, you will see this:
+If NATS is not running in the background,
+you will see this from the log for `wash dev`:
 ```
 2025-03-16T17:00:30.605287Z ERROR wasmcloud_provider_keyvalue_nats: Failed to connect to NATS: timed out
 2025-03-16T17:00:30.605339Z  WARN wasmcloud_provider_sdk::provider: receiving link failed error=failed to connect to NATS
 ```
 
-This warning appears several times:
-``
+This warning appears several times in the log for `wash dev`:
+```
 2025-03-16T17:00:37.406283Z  WARN wasmcloud_runtime::component: exported component resources are not supported in wasmCloud runtime and will be ignored, use a provider instead to enable this functionality
 ```
 
-*//begin original README, here  modified//*
+*//begin original README here, with edits//*
 
 # Go HTTP Key-Value CRUD
 
@@ -101,12 +103,12 @@ The `wash dev` command will:
 
 You can stop the `wash dev` process with `Ctrl-C`.
 
-## 📖 Further reading
+## Further reading
 
 When running this example with the `wash dev` command, wasmCloud uses
 its included NATS key-value store to back key-value operations, but the
 app could use another store like Redis with no change to the Go code. 
 
-Learn more about capabilities like key-value storage are fulfilled
+Learn more about how capabilities like key-value storage are fulfilled
 by swappable providers in the
 [wasmCloud Quickstart](https://wasmcloud.com/docs/tour/hello-world).  
