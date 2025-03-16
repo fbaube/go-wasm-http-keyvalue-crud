@@ -1,3 +1,19 @@
+# FIXED!
+
+This repo makes fixes to the
+[example](https://github.com/wasmCloud/go/tree/main/examples/component/http-keyvalue-crud)
+described
+[here](https://wasmcloud.com/blog/2025-01-23-walkthrough-a-wasmclod-crud-application-in-go/)
+so that it actually works. The initial upload worked with wasm-tools version 1.225.0, so it remains to be seen whether it works with version 1.227.0 and later, and with the new wasm version of wasm-tools, and with the new Go http-mux-router. 
+
+To exercise it when running `wash dev`:
+```
+wash app list
+curl -X POST localhost:8000/crud/mario -d '{"itsa": "me", "woo": "hoo"}'
+curl localhost:8000/crud/mario
+curl -X DELETE localhost:8000/crud/mario
+```
+
 # Go HTTP Key-Value CRUD
 
 [This example](https://github.com/wasmCloud/go/tree/main/examples/component/http-keyvalue-crud) is a WebAssembly component that demonstrates simple CRUD operations (Create, Read, Update, Destroy) with the [`wasi:keyvalue/store`](https://github.com/WebAssembly/wasi-keyvalue) interface. 

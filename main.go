@@ -10,15 +10,17 @@ import (
 	// A lightweight, high performance HTTP request router
 	"github.com/julienschmidt/httprouter"
 
-	// For the keyvalue capability, we're using
-	// bindings for the wasi:keyvalue/store interface.
+	// For the keyvalue capability, we use bindings
+	// for the wasi:keyvalue/store interface.
 	store "github.com/wasmCloud/go/examples/component/http-keyvalue-crud/gen/wasi/keyvalue/store"
+	// In the end, we did not need this ugly hack. 
 	// store "github.com/fbaube/wc_go_http-keyvalue-crud_gen_store" 
 
-	// The cm module provides types and functions for interacting with the WebAssembly Component Model.
+	// cm provides types and functions for interacting
+	// with the WebAssembly Component Model.
 	"go.bytecodealliance.org/cm"
 
-	// The wasmCloud wasihttp module enables us to write more idiomatic Go when using wasi:http.
+	// wasihttp lets us write more-idiomatic Go when using wasi:http.
 	"go.wasmcloud.dev/component/net/wasihttp"
 )
 
@@ -44,7 +46,8 @@ func init() {
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	fmt.Fprintln(w, `{"message":"GET, POST, or DELETE to /crud/<key> (with JSON payload for POSTs)"}`)
+	fmt.Fprintln(w,
+     `{"message":"GET,POST,DELETE to /crud/<key> (w JSON payload for POSTs)"}`)
 }
 
 func postHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -52,7 +55,7 @@ func postHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Assigns the "key" paramater to the "key" variable.
 	key := ps.ByName("key")
 
-	// Checks the request for a valid JSON body and assigns it to the value variable.
+	// Check the request for a valid JSON body and assign it to var "value".
 	// The user will set the value via JSON payload:
 	// curl -X POST 'localhost:8000/crud/key' -d '{"foo": "bar", "woo": "hoo"}'
 	var req CheckRequest
@@ -63,7 +66,8 @@ func postHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 	if err := json.Unmarshal(value, &req); err != nil {
-		errResponseJSON(w, http.StatusBadRequest, fmt.Sprintf("error with json input: %s", err.Error()))
+		errResponseJSON(w, http.StatusBadRequest,
+				 "error with json input: " + err.Error())
 		return
 	}
 
@@ -83,7 +87,7 @@ func postHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Converts the byte array to the Component Model's cm.List type.
 	valueList := cm.ToList(valueBytes)
 
-	// Sets the value for the key in the current bucket and handles any errors.
+	// Set the value for the key in the current bucket and handle any errors.
 	store.Bucket.Set(*kvStore.OK(), key, valueList)
 	// store.Bucket.Set(key, valueList)
 	/* kvSet := store.Bucket.Set(*kvStore.OK(), key, valueList)
@@ -94,7 +98,8 @@ func postHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	// Confirms set, returning key and value in JSON body.
 	kvSetMessage := fmt.Sprintf("Set %s", key)
-	kvSetResponse := fmt.Sprintf(`{"message":"%s", "value":"%s"}`, kvSetMessage, value)
+	kvSetResponse := fmt.Sprintf(`{"message":"%s", "value":"%s"}`,
+		kvSetMessage, value)
 	fmt.Fprintln(w, kvSetResponse)
 
 }
@@ -116,7 +121,7 @@ func getHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	// Returns and reports that key does not exist if no value is found.
 	if kvGet.Value().Len() == 0 {
-		errResponseJSON(w, http.StatusBadRequest, fmt.Sprintf("%s does not exist", key))
+		errResponseJSON(w, http.StatusBadRequest, key+": does not exist")
 		return
 	}
 	// Handles get errors other than non-existent key
@@ -125,12 +130,14 @@ func getHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		return
 	}
 
-	// Uses cm.LiftString to convert the byte value into a string, taking the data and len as arguments.
+	// Use cm.LiftString to convert the byte value into
+	// a string, taking the data and len as arguments.
 	kvGetJSON := cm.LiftString[string](kvGet.Value().Data(), kvGet.Value().Len())
 
 	// Returns key and value in JSON body.
 	kvGetMessage := fmt.Sprintf("Got %s", key)
-	kvGetResponse := fmt.Sprintf(`{"message":"%s", "value":"%s"}`, kvGetMessage, kvGetJSON)
+	kvGetResponse := fmt.Sprintf(`{"message":"%s", "value":"%s"}`,
+		kvGetMessage, kvGetJSON)
 	fmt.Fprintln(w, kvGetResponse)
 
 }
@@ -149,7 +156,7 @@ func deleteHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	// Returns and reports that key does not exist if no value is found.
 	kvGet, _, _ := store.Bucket.Get(*kvStore.OK(), key).Result()
 	if kvGet.Value().Len() == 0 {
-		errResponseJSON(w, http.StatusBadRequest, fmt.Sprintf("%s does not exist", key))
+		errResponseJSON(w, http.StatusBadRequest, key+": does not exist")
 		return
 	}
 	// Deletes the entry for the provided key.
@@ -173,6 +180,6 @@ func errResponseJSON(w http.ResponseWriter, code int, message string) {
 	w.Header().Set("Content-Type", "application/json")
 }
 
-// Since we don't run this program like a CLI, the `main` function is empty. Instead,
-// we call handler functions when an HTTP request is received.
+// Since we don't run this program like a CLI, `func main` is empty. 
+// Instead, we call handler functions when an HTTP request is received.
 func main() {}
