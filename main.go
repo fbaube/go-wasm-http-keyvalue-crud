@@ -7,13 +7,17 @@ import (
 	"io"
 	"net/http"
 
-	// A lightweight, high performance HTTP request router
+	// `wasihttp` does not like the new Go ServeMux, so we use this instead.
+	// Its README states: In contrast to the default mux of Go's net/http
+	// package, this router supports variables in the routing pattern and
+	// matches against the request method. 
 	"github.com/julienschmidt/httprouter"
 
 	// For the keyvalue capability, we use bindings
 	// for the wasi:keyvalue/store interface.
 	store "github.com/wasmCloud/go/examples/component/http-keyvalue-crud/gen/wasi/keyvalue/store"
-	// In the end, we did not need this ugly hack. 
+	// In the end, we did not need this ugly hack, because when
+	// things are working right, the compiler does locate `gen`.
 	// store "github.com/fbaube/wc_go_http-keyvalue-crud_gen_store" 
 
 	// cm provides types and functions for interacting
@@ -38,19 +42,19 @@ type CheckResponse struct {
 func init() {
 	// Establishes the routes and methods for our key-value operations.
 	router := httprouter.New()
-	router.GET("/", indexHandler)
-	router.POST("/crud/:key", postHandler)
-	router.GET("/crud/:key", getHandler)
-	router.DELETE("/crud/:key", deleteHandler)
+	router.GET   ("/", 	    hINDEX)
+	router.GET   ("/crud/:key", hGET)
+	router.POST  ("/crud/:key", hPOST)
+	router.DELETE("/crud/:key", hDELETE)
 	wasihttp.Handle(router)
 }
 
-func indexHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func hINDEX(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	fmt.Fprintln(w,
      `{"message":"GET,POST,DELETE to /crud/<key> (w JSON payload for POSTs)"}`)
 }
 
-func postHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func hPOST(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	// Assigns the "key" paramater to the "key" variable.
 	key := ps.ByName("key")
@@ -75,11 +79,10 @@ func postHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// store.Open("default")
 	kvStore := store.Open("default")
 	fmt.Printf("store.Open: result: <%s> %#v \n", kvStore, kvStore)
-	/*
 	if err := kvStore.Err(); err != nil {
 		errResponseJSON(w, http.StatusInternalServerError, err.String())
 		return
-	} */
+	} 
 
 	// Converts the value to a byte array.
 	valueBytes := []byte(value)
@@ -90,11 +93,11 @@ func postHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Set the value for the key in the current bucket and handle any errors.
 	store.Bucket.Set(*kvStore.OK(), key, valueList)
 	// store.Bucket.Set(key, valueList)
-	/* kvSet := store.Bucket.Set(*kvStore.OK(), key, valueList)
+	kvSet := store.Bucket.Set(*kvStore.OK(), key, valueList)
 	if kvSet.IsErr() {
 		errResponseJSON(w, http.StatusBadRequest, kvSet.Err().String())
 		return
-	} */
+	} 
 
 	// Confirms set, returning key and value in JSON body.
 	kvSetMessage := fmt.Sprintf("Set %s", key)
@@ -104,7 +107,7 @@ func postHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 }
 
-func getHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func hGET(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	// Assigns the "key" paramater to the "key" variable.
 	key := ps.ByName("key")
@@ -142,7 +145,7 @@ func getHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 }
 
-func deleteHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func hDELETE(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	// Assigns the "key" paramater to the "key" variable.
 	key := ps.ByName("key")
