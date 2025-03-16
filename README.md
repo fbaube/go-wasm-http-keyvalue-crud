@@ -6,11 +6,10 @@ This repo makes fixes to WasmCloud's
 [here](https://wasmcloud.com/blog/2025-01-23-walkthrough-a-wasmclod-crud-application-in-go/)
 ) so that it actually works.
 
-The initial upload worked with wasm-tools version 1.225.0,
-so it remains to be seen whether it will work with
-- `wasm-tools` version 1.227.0 and later
--  the new wasm version of wasm-tools
-- `wash up -d`
+This "early" version works with `wasm-tools` version 1.225.0. It does NOT work
+with `wasm-tools` version 1.227.0, and the cause looks impossible to sort out.
+
+It remains to be seen whether it works with `wash up -d`.
 
 The router has to be passed to `wasi-http`, which chokes on the
 new Go `ServeMux`, so we use a third-party router instead.
@@ -25,21 +24,23 @@ curl -X DELETE localhost:8000/crud/mario
 
 # Go HTTP Key-Value CRUD
 
-[This example](https://github.com/wasmCloud/go/tree/main/examples/component/http-keyvalue-crud) is a WebAssembly component that demonstrates simple CRUD operations (Create, Read, Update, Destroy) with the [`wasi:keyvalue/store`](https://github.com/WebAssembly/wasi-keyvalue) interface. 
+[This example](https://github.com/wasmCloud/go/tree/main/examples/component/http-keyvalue-crud)
+is a WebAssembly component that demonstrates simple CRUD operations (Create, Read, Update, Destroy) with the
+[`wasi:keyvalue/store`](https://github.com/WebAssembly/wasi-keyvalue) interface. 
 
 ## 📦 Dependencies
 
 > [!WARNING]
-> Due to incompatibilities introduced in `wasm-tools` v1.226.0, a version of
-> `wasm-tools` <= 1.225.0 is **required** for running this example.
+> Due to incompatibilities introduced in `wasm-tools` v1.226.0, a version 
+> of `wasm-tools` <= 1.225.0 is **required** for running this example.
 >
 > You can install `wasm-tools` [v1.225.0 from upstream releases](https://github.com/bytecodealliance/wasm-tools/releases/tag/v1.225.0), or use
 > `cargo` ([Rust toolchain](https://doc.rust-lang.org/cargo/getting-started/installation.html)) -- (i.e. `cargo install --locked wasm-tools@1.225.0`)
 
 Before starting, you need to have installed
 [`tinygo`](https://tinygo.org/getting-started/install/),
-`wasm-tools`](https://github.com/bytecodealliance/wasm-tools#installation),
-wasmCloud Shell (`wash`)](https://wasmcloud.com/docs/installation).
+[`wasm-tools`](https://github.com/bytecodealliance/wasm-tools#installation),
+wasmCloud Shell [`wash`](https://wasmcloud.com/docs/installation).
 
 ## 👟 Run the example
 
@@ -51,9 +52,9 @@ directory includes the following files and directories:
 [interfaces](https://wasmcloud.com/docs/concepts/interfaces)
 - `/wit`: Directory for WIT packages that define interfaces
 - `bindings.wadge.go`: Automatically generated test bindings
-- `wadm.yaml`: Declarative application manifest
+- `wadm.yaml`: Declarative app manifest
 - `wasmcloud.lock`: Automatically generated lockfile for WIT packages
-- `wasmcloud.toml`: Configuration file for a wasmCloud application
+- `wasmcloud.toml`: Configuration file for a wasmCloud app
 
 ### Start a local development loop
 
@@ -67,7 +68,7 @@ The `wash dev` command will:
 
 - Start a local wasmCloud environment
 - Build this component
-- Deploy your application and all dependencies to run the application locally
+- Deploy your app and all dependencies to run the app locally
 - Watch your code for changes and re-deploy when necessary.
 
 ### Clean up
