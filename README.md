@@ -1,4 +1,4 @@
-# Works! :-D
+# KV works; RDBMS RSN 
 
 This repo makes fixes to WasmCloud's
 [example](https://github.com/wasmCloud/go/tree/main/examples/component/http-keyvalue-crud)
@@ -6,9 +6,11 @@ This repo makes fixes to WasmCloud's
 [here](https://wasmcloud.com/blog/2025-01-23-walkthrough-a-wasmclod-crud-application-in-go/)
 ) so that it actually works.
 
-This "early" version works with `wasm-tools` version 1.225.0. It
-does <big>**not**</big> work with `wasm-tools` version 1.227.0,
-and the cause looks impossible to sort out.
+**The intent is to get this to also use SQLite.**
+
+This "early" version works with `wasm-tools` version 1.225.0.
+It does **not** work with `wasm-tools` version 1.227.0, and
+the cause looks pretty much impossible to sort out.
 
 It remains to be seen whether it works with `wash up -d`.
 Note the comment down below: <br/>
@@ -30,6 +32,8 @@ curl -X POST localhost:8000/crud/mario -d '{"itsa": "me", "woo": "hoo"}'
 curl localhost:8000/crud/mario
 curl -X DELETE localhost:8000/crud/mario
 ```
+
+*//begin original README, here  modified//*
 
 # Go HTTP Key-Value CRUD
 
