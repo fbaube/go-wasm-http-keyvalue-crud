@@ -4,14 +4,16 @@ metadata:
   name: "http-keyvalue-crud"
   annotations:
     description: "HTTP and keyvalue CRUD example"
-    wasmcloud.dev/authors: wasmCloud team
-    wasmcloud.dev/source-url: https://github.com/wasmCloud/go/blob/main/examples/components/http-keyvalue-crud/wadm.yaml
-    wasmcloud.dev/readme-md-url: https://github.com/wasmCloud/go/blob/main/examples/components/http-keyvalue-crud/README.md
-    wasmcloud.dev/homepage: https://github.com/wasmCloud/go/blob/main/examples/components/http-keyvalue-crud
-    wasmcloud.dev/categories: |
-      http,outgoing-http,http-server,tinygo,golang,example
+#  wasmcloud.dev/authors: wasmCloud team
+#  wasmcloud.dev/source-url: https://github.com/wasmCloud/go/blob/main/examples/components/http-keyvalue-crud/wadm.yaml
+#  wasmcloud.dev/readme-md-url: https://github.com/wasmCloud/go/blob/main/examples/components/http-keyvalue-crud/README.md
+#  wasmcloud.dev/homepage: https://github.com/wasmCloud/go/blob/main/examples/components/http-keyvalue-crud
+#  wasmcloud.dev/categories: |
+#       http,outgoing-http,http-server,tinygo,golang,example
 spec:
   components:
+# Note that keyvalue-nats is not referenced
+# by any WIT files: it appears only here.
   - name: keyvalue-nats
     type: capability
     properties:

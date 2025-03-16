@@ -2,22 +2,23 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	S "strings"
+	"encoding/json"
 
-	// `wasihttp` does not like the new Go ServeMux, so we use this instead.
-	// Its README states: In contrast to the default mux of Go's net/http
-	// package, this router supports variables in the routing pattern and
-	// matches against the request method. 
+	// wasihttp does not like the new Go ServeMux, but it does work 
+	// okay with this. Its README states: In contrast to the default 
+	// mux of Go's net/http package, this router supports variables
+	// in the routing pattern and matches against the request method. 
 	"github.com/julienschmidt/httprouter"
 
 	// For the keyvalue capability, we use bindings
 	// for the wasi:keyvalue/store interface.
 	store "github.com/wasmCloud/go/examples/component/http-keyvalue-crud/gen/wasi/keyvalue/store"
-	// In the end, we did not need this ugly hack, because when
-	// things are working right, the compiler does locate `gen`.
+	// In the end we did not need this ugly hack, because when
+	// things are working right, the compiler does locate gen:
 	// store "github.com/fbaube/wc_go_http-keyvalue-crud_gen_store" 
 
 	// cm provides types and functions for interacting
@@ -26,6 +27,11 @@ import (
 
 	// wasihttp lets us write more-idiomatic Go when using wasi:http.
 	"go.wasmcloud.dev/component/net/wasihttp"
+
+	// wasilog lets us log in slog style 
+	"go.wasmcloud.dev/component/log/wasilog"
+	"log/slog"
+	
 )
 
 // Types for JSON validation.
@@ -39,9 +45,14 @@ type CheckResponse struct {
 	Message string `json:"message,omitempty"`
 }
 
+var router *httprouter.Router
+var logger *slog.Logger
+
+// init establishes the routes & methods for our K/V operations.
 func init() {
-	// Establishes the routes and methods for our key-value operations.
-	router := httprouter.New()
+        logger = wasilog.ContextLogger("DERF")
+	logger.Info("Logging is initialized")
+	router = httprouter.New()
 	router.GET   ("/", 	    hINDEX)
 	router.GET   ("/crud/:key", hGET)
 	router.POST  ("/crud/:key", hPOST)
@@ -52,6 +63,12 @@ func init() {
 func hINDEX(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	fmt.Fprintln(w,
      `{"message":"GET,POST,DELETE to /crud/<key> (w JSON payload for POSTs)"}`)
+     /*
+     var routerDump string
+     routerDump = fmt.Sprintf("Router: %#v", *router)
+     routerDump = S.ReplaceAll(routerDump, ", ", ", \n")
+     fmt.Fprintf(w, routerDump)
+     */
 }
 
 func hPOST(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -66,19 +83,21 @@ func hPOST(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	defer r.Body.Close()
 	value, err := io.ReadAll(r.Body)
 	if err != nil {
-		errResponseJSON(w, http.StatusBadRequest, err.Error())
+		errResponseJSON(w, http.StatusBadRequest,
+			"io.ReadAll(r.Body): " + err.Error())
 		return
 	}
 	if err := json.Unmarshal(value, &req); err != nil {
 		errResponseJSON(w, http.StatusBadRequest,
-				 "error with json input: " + err.Error())
+				 "Request.json.Unmarshal: " + err.Error())
 		return
 	}
 
 	// Opens the keyvalue bucket.
-	// store.Open("default")
+	// NOTE: wasm-tools 1.127.0 does not allow the assignment of
+	// a return value here and requires: store.Open("default")
 	kvStore := store.Open("default")
-	fmt.Printf("store.Open: result: <%s> %#v \n", kvStore, kvStore)
+	fmt.Printf("store.Open: result: <%T> %#v \n", kvStore, kvStore)
 	if err := kvStore.Err(); err != nil {
 		errResponseJSON(w, http.StatusInternalServerError, err.String())
 		return

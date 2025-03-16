@@ -1,8 +1,19 @@
 package wasmcloud:http-keyvalue-crud;
 
 world component {
-  include wasmcloud:component-go/imports@0.1.0;
-  import wasi:logging/logging@0.1.0-draft;
-  import wasi:keyvalue/store@0.2.0-draft; 
-  export wasi:http/incoming-handler@0.2.0;
+
+// https://github.com/wasmCloud/component-sdk-go/blob/main/wit/world.wit
+// export wasi:http/incoming-handler@0.2.0;
+   include wasmcloud:component-go/imports@0.1.0;
+
+// https://github.com/WebAssembly/wasi-logging
+   import wasi:logging/logging@0.1.0-draft;
+
+// https://github.com/WebAssembly/wasi-keyvalue
+// https://github.com/WebAssembly/wasi-keyvalue/blob/main/wit/store.wit
+   import wasi:keyvalue/store@0.2.0-draft;
+
+// https://github.com/WebAssembly/wasi-http/
+// https://github.com/WebAssembly/wasi-http/blob/main/wit/handler.wit
+   export wasi:http/incoming-handler@0.2.0;
 }

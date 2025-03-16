@@ -33,6 +33,19 @@ curl localhost:8000/crud/mario
 curl -X DELETE localhost:8000/crud/mario
 ```
 
+# Problems at runtime
+
+If NATS is not running in the background, you will see this:
+```
+2025-03-16T17:00:30.605287Z ERROR wasmcloud_provider_keyvalue_nats: Failed to connect to NATS: timed out
+2025-03-16T17:00:30.605339Z  WARN wasmcloud_provider_sdk::provider: receiving link failed error=failed to connect to NATS
+```
+
+This warning appears several times:
+``
+2025-03-16T17:00:37.406283Z  WARN wasmcloud_runtime::component: exported component resources are not supported in wasmCloud runtime and will be ignored, use a provider instead to enable this functionality
+```
+
 *//begin original README, here  modified//*
 
 # Go HTTP Key-Value CRUD
