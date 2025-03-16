@@ -6,10 +6,19 @@ This repo makes fixes to WasmCloud's
 [here](https://wasmcloud.com/blog/2025-01-23-walkthrough-a-wasmclod-crud-application-in-go/)
 ) so that it actually works.
 
-This "early" version works with `wasm-tools` version 1.225.0. It does NOT work
-with `wasm-tools` version 1.227.0, and the cause looks impossible to sort out.
+This "early" version works with `wasm-tools` version 1.225.0. It
+does <big>**not**</big> work with `wasm-tools` version 1.227.0,
+and the cause looks impossible to sort out.
 
 It remains to be seen whether it works with `wash up -d`.
+Note the comment down below: <br/>
+*When running this example with the `wash dev` command, wasmCloud uses
+its included NATS key-value store to back key-value operations, but the
+app could use another store like Redis with no change to the Go code.*
+
+WasmCloud's original version is several directory levels down,
+but ths repo works fine in isolation, cloned from git to any
+location. (This is not true for some other demos they have.) 
 
 The router has to be passed to `wasi-http`, which chokes on the
 new Go `ServeMux`, so we use a third-party router instead.
@@ -24,8 +33,8 @@ curl -X DELETE localhost:8000/crud/mario
 
 # Go HTTP Key-Value CRUD
 
-[This example](https://github.com/wasmCloud/go/tree/main/examples/component/http-keyvalue-crud)
-is a WebAssembly component that demonstrates simple CRUD operations (Create, Read, Update, Destroy) with the
+This example is a WebAssembly component that demonstrates simple
+CRUD operations (Create, Read, Update, Destroy) with the
 [`wasi:keyvalue/store`](https://github.com/WebAssembly/wasi-keyvalue) interface. 
 
 ## 📦 Dependencies
