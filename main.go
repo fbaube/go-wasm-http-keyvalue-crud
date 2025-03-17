@@ -1,6 +1,9 @@
 //go:generate go tool wit-bindgen-go generate --world component --out gen ./wit
 package main
 
+// "incomplete results" from wrpc
+// https://github.com/bytecodealliance/wrpc/blob/ca379336f5124a109358459e04d2b18587f87aee/crates/transport/src/invoke.rs#L208
+
 import (
 	"fmt"
 	"io"
@@ -8,10 +11,29 @@ import (
 	// S "strings"
 	"encoding/json"
 
-	// wasihttp does not like the new Go ServeMux, but it does work 
-	// okay with this. Its README states: In contrast to the default 
-	// mux of Go's net/http package, this router supports variables
-	// in the routing pattern and matches against the request method. 
+	// "database/sql"
+	// _ "embed"
+	// "embed"
+
+	// Lots of fails...
+	// _ "github.com/mattn/go-sqlite3"
+	// _ "modernc.org/sqlite"
+	// _ "gitlab.com/cznic/sqlite"
+	// _ "github.com/ncruces/go-sqlite3/driver"
+	// _ "github.com/ncruces/go-sqlite3/embed"
+
+
+	// And then a desperation move...
+	// SAVE THESE FOR LATER 
+	// _ "github.com/fbaube/go-sqlite3-for-tinygo-wasm"
+	// _ "github.com/fbaube/go-sqlite3-for-tinygo-wasm/driver"
+	// _ "github.com/fbaube/go-sqlite3-for-tinygo-wasm/embed"
+
+	// wasihttp does not like the new Go ServeMux, but it does 
+	// work okay with this third-party router. Its README states:
+	// In contrast to the default mux of Go's net/http package,
+	// this router supports variables in the routing pattern
+	// and matches against the request method. 
 	"github.com/julienschmidt/httprouter"
 
 	// For the keyvalue capability, we use bindings
@@ -26,6 +48,18 @@ import (
 	"go.wasmcloud.dev/component/log/wasilog"
 	"log/slog"	
 )
+
+/*
+// EMBEDDED DATABASE
+// https://github.com/mattn/go-sqlite3/issues/968
+// https://github.com/mattn/go-sqlite3/pull/1188
+
+//go:embed m5.db
+var theDB []byte
+
+//go:embed m5.db
+var fsDB embed.FS 
+*/
 
 // Types for JSON validation.
 type CheckRequest struct {
@@ -43,9 +77,35 @@ var logger *slog.Logger
 
 // init establishes the routes & methods for our K/V operations.
 func init() {
+
         logger = wasilog.ContextLogger("DERF")
+//	logger := slog.New(wasilog.DefaultOptions().NewHandler())
 	logger.Info("Logging is initialized")
 	logger.Info("Logging", "Name", "fubar", "Number", 42)
+/*	
+	_, e1 := sql.Open("sqlite3", "file://m5.db?mode=ro")
+	_, e2 := sql.Open("sqlite3", "file://fsDB/m5.db?mode=ro")
+	if e1 != nil { logger.Error("e1: " + e1.Error()) }
+	if e2 != nil { logger.Error("e2: " + e2.Error()) }
+	db, _ := sql.Open("sqlite3", "file:m5.db")
+	var version int 
+	db.QueryRow(`SELECT sqlite_version()`).Scan(&version)
+
+	// This one seems to work, but then there's no way to convert
+	// the []byte into a DB unless you write it to disk and read 
+	// it in as a "file:/// URL, but this is not allowed (yet).
+	logger.Info("theDB", "len", len(theDB))
+
+	// This one works! This means we can almost definitely 
+	// read it with SQLite, IF we can find a driver that 
+	// can be compiled in by tinygo. 
+	// 
+	// func (f FS) ReadFile(name string) ([]byte, error)
+	ff, _ := fsDB.Open("m5.db")
+	fi, _ := ff.Stat()
+	logger.Info("fsDB/db", "len", fi.Size())
+	// if ee != nil { logger.Info("fsDB/db", "err", ee.Error()) }
+*/
 	router = httprouter.New()
 	router.GET   ("/", 	    hINDEX)
 	router.GET   ("/crud/:key", hGET)

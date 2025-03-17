@@ -1,0 +1,14 @@
+https://github.com/wasmCloud/wasmCloud/issues/2172
+
+Currently wash call only supports functions with this signature:
+
+  package wasmcloud:test;
+
+  interface foo {
+    bar: func() -> string;
+  }
+
+Then, wash call can be used like so:
+
+  wash call <component_id> wasmcloud:test/foo.bar
+

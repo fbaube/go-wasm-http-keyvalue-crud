@@ -1,5 +1,7 @@
 package wasmcloud:http-keyvalue-crud;
 
+// see https://github.com/wasmCloud/component-sdk-go/tree/main/wit/deps
+
 world component {
 
 // https://github.com/wasmCloud/component-sdk-go/blob/main/wit/world.wit
@@ -7,13 +9,47 @@ world component {
    include wasmcloud:component-go/imports@0.1.0;
 
 // https://github.com/WebAssembly/wasi-logging
-   import wasi:logging/logging@0.1.0-draft;
+   import wasi:logging/logging@0.1.0-draft; // an interface
 
 // https://github.com/WebAssembly/wasi-keyvalue
 // https://github.com/WebAssembly/wasi-keyvalue/blob/main/wit/store.wit
    import wasi:keyvalue/store@0.2.0-draft;
 
+// For some weird reason, this "include" makes "wash dev" barf with lots of:
+// wasm-ld: error: couldn't allocate output register for constraint '{r0}'
+// ... apparently cos it repeats an "import" above! So, recursion!
+// include wasmcloud:component-go/imports@0.1.0;
+
 // https://github.com/WebAssembly/wasi-http/
 // https://github.com/WebAssembly/wasi-http/blob/main/wit/handler.wit
-   export wasi:http/incoming-handler@0.2.0;
+   export wasi:http/incoming-handler@0.2.0; // an interface
+// Has to export:
+// handle: func(request: incoming-request, response-out: response-outparam);
+
+// interface's FOR FUTURE USE :-D
+// import wasi:cli/command@0.2.0; // is a world, not an interface 
+   import wasi:cli/environment@0.2.0;
+   import wasi:cli/run@0.2.0;
+   import wasi:cli/exit@0.2.0;
+   import wasi:cli/stdin@0.2.0;
+   import wasi:cli/stdout@0.2.0;
+   import wasi:cli/stderr@0.2.0;
+   import wasi:io/error@0.2.0;
+   import wasi:io/streams@0.2.0;
+   import wasi:filesystem/types@0.2.0;
+   import wasi:filesystem/preopens@0.2.0;
+   import wasi:clocks/wall-clock@0.2.0;
+   import wasi:config/runtime@0.2.0-draft;
+   import wasi:random/random@0.2.0;
+   import wasi:sockets/network@0.2.0;
+
+// wasmcloud:bus@1.0.0
+// wasmcloud:component-go@0.1.0 (already imported above)
+// wasmcloud:secrets@0.1.0-draft
+
+// Above, we have wasi:keyvalue/store@0.2.0-draft.
+// This one OTOH is defined at:
+// https://wasmcloud.com/blog/2025-01-23-walkthrough-a-wasmclod-crud-application-in-go/
+// wasmcloud:http-keyvalue-crud 
+
 }
